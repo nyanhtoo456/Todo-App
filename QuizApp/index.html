@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizApp</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Science+Gothic:wght@100..900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="app">
+      <h1>Quiz Time</h1>
+      <div class="question">
+        <h3 id="question">. Here goes question</h3>
+        <div id="answer" class="col">
+          <button class="btn">ans 1</button>
+          <button class="btn">ans 2</button>
+          <button class="btn">ans 3</button>
+          <button class="btn">ans 4</button>
+        </div>
+        
+      </div>
+       <div class="btn-group">
+          <button id="Previous" class="next-btn">Previous</button>
+          <button id="next" class="next-btn">Next</button>
+        </div>
+    </div>
+
+    <script>
+      const questionElem = document.querySelector("#question");
+      const answerBtn = document.querySelector("#answer");
+      const nextBtn = document.querySelector("#next");
+      const previousBtn = document.querySelector("#Previous");
+
+      const questions = [
+        {
+          ques: "What is the largest ocean on Earth?",
+          ans: [
+            {text: "Indian Ocean", correct: false},
+            {text: "Atlantic Ocean", correct: false},
+            {text: "Pacific Ocean", correct: true},
+            {text: "Arctic Ocean", correct: false}
+          ]
+        },
+        {
+          ques: "Who invented the telephone?",
+          ans: [
+            {text: "Thomas Edison", correct: false},
+            {text: "Alexander Graham Bell", correct: true},
+            {text: "Nikola Tesla", correct: false},
+            {text: "Albert Einstein", correct: false}
+          ]
+        },
+        {
+          ques: "What is the capital city of france?",
+          ans: [
+            {text: "Rome", correct: false},
+            {text: "Berlin", correct: false},
+            {text: "Paris", correct: true},
+            {text: "Madrid", correct: false}
+          ]
+        },
+        {
+          ques: "Which planet is known as the Red Planet?",
+          ans: [
+            {text: "Venus", correct: false},
+            {text: "Jupiter", correct: false},
+            {text: "Saturn", correct: false},
+            {text: "Mars", correct: true}
+          ]
+        }
+      ]
+
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let selectedAnswers = Array(questions.length).fill(null);
+
+      function reset() {
+        nextBtn.style.display = "none";
+        while( answerBtn.firstChild) {
+          answerBtn.removeChild(answerBtn.firstChild)
+        }
+      }
+
+      function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        selectedAnswers = Array(questions.length).fill(null);
+        showQuiz();
+        nextBtn.style.display = "none";
+      }
+
+      function showQuiz() {
+        reset();
+
+        let currentQuestion = questions[currentQuestionIndex];
+        let questionNo = currentQuestionIndex + 1;
+        questionElem.innerHTML = questionNo + ". " + currentQuestion.ques;
+
+        if( currentQuestionIndex === 0) {
+          previousBtn.style.display = "none";
+        } else {
+          previousBtn.style.display = "block";
+        }
+
+        nextBtn.innerText = "Next";
+
+        currentQuestion.ans.forEach((answer , index) => {
+          let button = document.createElement("button");
+          button.innerHTML = answer.text;
+          button.classList.add("btn");
+          answerBtn.appendChild(button);
+          if(answer.correct) {
+            button.dataset.correct = answer.correct;
+          }
+
+          if( selectedAnswers[currentQuestionIndex] !== null) {
+            const selectedIndex = selectedAnswers[currentQuestionIndex];
+            if( selectedIndex === index) {
+              button.classList.add(answer.correct? "correct" : "incorrect");
+            } 
+
+            if( answer.correct === true)
+            button.classList.add("correct");
+
+            button.disabled = true;
+            nextBtn.style.display = "block";
+          }
+
+          button.addEventListener("click", e=> select(e ,index))
+        });
+      }
+
+      function select(e, index) {
+        const selectAnswer = e.target;
+        const isCorrect = selectAnswer.dataset.correct == "true";
+       
+
+        selectedAnswers[currentQuestionIndex] = index;
+
+        if(isCorrect) {
+          selectAnswer.classList.add("correct");
+          score++;
+        } else {
+          selectAnswer.classList.add("incorrect");
+        }
+
+        Array.from(answerBtn.children).forEach(button => {
+          if( button.dataset.correct == "true") {
+            button.classList.add("correct")
+          }
+
+          button.disabled = true;
+        });
+        nextBtn.style.display = "block";
+      }
+
+      function showScore() {
+        const text = document.createElement("div");
+        text.style.fontSize = "2rem";
+        text.style.margin = "20px auto";
+        text.style.fontWeight = "800";
+        reset();
+        questionElem.innerHTML = `You scored ${score} out of ${questions.length}!`;
+        if(score <= 2 ) {
+          text.textContent = "You don`t love me!"
+        } else {
+          text.textContent = "Thanks my gorgeous Ngu"
+        };
+        questionElem.appendChild(text);
+        nextBtn.textContent = "Play Again";
+        nextBtn.style.display = "block";
+      }
+
+      function handlePrevious() {
+        currentQuestionIndex--;
+
+        showQuiz();
+      }
+
+      function handleNext() {
+        currentQuestionIndex ++;
+        if( currentQuestionIndex < questions.length){
+          showQuiz();
+        } else {
+          showScore();
+        }
+      }
+
+      nextBtn.addEventListener("click", ()=> {
+        if( currentQuestionIndex < questions.length) {
+          handleNext();
+        } else {
+          startQuiz();
+        }
+
+      });
+
+      previousBtn.addEventListener("click", handlePrevious);
+      startQuiz();
+      
+    </script>
+  </body>
+</html>
