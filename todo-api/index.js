@@ -5,10 +5,10 @@ const cors= require("cors");
 app.use(cors());
 
 const { PrismaClient } = require("./generated/prisma");
-const prisma = new PrismaClient({ adapter: { provider: 'sqlite', url: process.env.DATABASE_URL } });
+const prisma = new PrismaClient();
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 app.post('/task', async (req , res) => {
     const name = req.body?.name;
